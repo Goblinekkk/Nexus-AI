@@ -7,34 +7,43 @@ const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 const chatContainer = document.querySelector('.chat-container');
 
+// Sidebar Logic
 const toggleMenu = (open) => {
     sidebar.classList.toggle('open', open);
     overlay.style.display = open ? 'block' : 'none';
 };
 
 document.getElementById('menuBtn').onclick = () => toggleMenu(true);
-overlay.onclick = () => toggleMenu(false);
 document.getElementById('closeBtn').onclick = () => toggleMenu(false);
+overlay.onclick = () => toggleMenu(false);
 
+// Jazyková logika
 function switchLang(l) {
     currentLang = l;
     document.querySelectorAll('.lang-switch span').forEach(s => s.classList.remove('active'));
     document.getElementById('lang' + l.toUpperCase()).classList.add('active');
     
-    document.getElementById('mainTitle').innerText = l === 'cs' ? "Co dnes vytvoříme?" : "What shall we create?";
-    document.getElementById('userInput').placeholder = l === 'cs' ? "Napiš zprávu..." : "Type a message...";
-    document.getElementById('histTitle').innerText = l === 'cs' ? "Knihovna" : "Library";
-    document.getElementById('newChatBtn').innerText = l === 'cs' ? "+ Nový chat" : "+ New chat";
-    document.getElementById('clearAllBtn').innerText = l === 'cs' ? "Smazat historii" : "Clear history";
+    const translations = {
+        cs: { title: "Co dnes vytvoříme?", input: "Napiš zprávu...", hist: "Knihovna", new: "+ Nový chat", clear: "Smazat historii", thinking: "Luvyx přemýšlí..." },
+        en: { title: "What shall we create?", input: "Type a message...", hist: "Library", new: "+ New chat", clear: "Clear history", thinking: "Luvyx thinking..." }
+    };
+
+    const t = translations[l];
+    document.getElementById('mainTitle').innerText = t.title;
+    document.getElementById('userInput').placeholder = t.input;
+    document.getElementById('histTitle').innerText = t.hist;
+    document.getElementById('newChatBtn').innerText = t.new;
+    document.getElementById('clearAllBtn').innerText = t.clear;
 }
 
 document.getElementById('langCS').onclick = () => switchLang('cs');
 document.getElementById('langEN').onclick = () => switchLang('en');
 
+// Chat Logic
 function scrollToBottom() {
     setTimeout(() => {
         chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
-    }, 50);
+    }, 100);
 }
 
 async function sendMessage() {
@@ -61,7 +70,7 @@ async function sendMessage() {
             headers: { "Authorization": `Bearer ${MASTER_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
                 messages: [
-                    {role: "system", content: currentLang === 'cs' ? "Jsi Luvyx AI. Odpovídej česky a k věci." : "You are Luvyx AI. Be direct."},
+                    {role: "system", content: currentLang === 'cs' ? "Jsi Luvyx AI. Odpověz česky, krátce a k věci." : "You are Luvyx AI. Be concise."},
                     {role: "user", content: text}
                 ],
                 model: currentModel
@@ -70,7 +79,9 @@ async function sendMessage() {
         const data = await res.json();
         aiBubble.innerText = data.choices[0].message.content;
         scrollToBottom();
-    } catch (e) { aiBubble.innerText = "Chyba."; }
+    } catch (e) { 
+        aiBubble.innerText = "Chyba připojení k mozku Luvyx."; 
+    }
 }
 
 function addBubble(t, type) {
@@ -82,26 +93,40 @@ function addBubble(t, type) {
     return div;
 }
 
+// Model Picker
+document.querySelectorAll('.model-btn').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentModel = btn.dataset.model;
+    };
+});
+
+// Historie Logic
 function updateHistory(text) {
-    let history = JSON.parse(localStorage.getItem('luvyx_hist') || '[]');
-    const title = text.substring(0, 22) + "...";
+    let history = JSON.parse(localStorage.getItem('luvyx_v2_hist') || '[]');
+    const title = text.substring(0, 20) + (text.length > 20 ? "..." : "");
     if(!history.includes(title)) {
         history.unshift(title);
-        localStorage.setItem('luvyx_hist', JSON.stringify(history.slice(0, 10)));
+        localStorage.setItem('luvyx_v2_hist', JSON.stringify(history.slice(0, 12)));
         renderHistory();
     }
 }
 
 function renderHistory() {
     const list = document.getElementById('chatHistoryList');
-    const history = JSON.parse(localStorage.getItem('luvyx_hist') || '[]');
-    list.innerHTML = history.map(h => `<div style="padding:15px 10px; border-bottom:1px solid #f4f4f5; font-size:0.85rem; color:#888;">${h}</div>`).join('');
+    const history = JSON.parse(localStorage.getItem('luvyx_v2_hist') || '[]');
+    list.innerHTML = history.map(h => `<div class="hist-item" style="padding:15px 12px; border-bottom:1px solid #f4f4f5; font-size:0.85rem; color:#666; cursor:pointer;">${h}</div>`).join('');
 }
 
 document.getElementById('clearAllBtn').onclick = () => {
-    if(confirm("Smazat?")) { localStorage.removeItem('luvyx_hist'); renderHistory(); }
+    if(confirm(currentLang === 'cs' ? "Opravdu smazat historii?" : "Clear all history?")) {
+        localStorage.removeItem('luvyx_v2_hist');
+        renderHistory();
+    }
 };
 
+// Start & Keyboard
 document.getElementById('sendBtn').onclick = sendMessage;
 document.getElementById('newChatBtn').onclick = () => location.reload();
 document.getElementById('userInput').oninput = function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; };
