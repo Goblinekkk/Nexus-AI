@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus AI | v1.9</title>
+    <title>Luvyx AI | v2.2</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <nav>
-        <div class="logo">NEXUS</div>
+        <div class="logo">LUVYX</div>
         <div class="nav-right">
             <div class="lang-switch">
                 <span id="langCS" class="active">CS</span> / <span id="langEN">EN</span>
@@ -24,16 +24,16 @@
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 id="histTitle">Historie</h3>
+                <h3 id="histTitle">Knihovna</h3>
                 <button id="closeBtn" class="icon-btn">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
-            <button id="newChatBtn" style="border-radius: 50px !important;">+ Nový chat</button>
+            <button id="newChatBtn">+ Nový chat</button>
         </div>
         <div id="chatHistoryList"></div>
         <div class="sidebar-footer">
-            <button id="clearAllBtn" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.75rem; font-weight: 600; padding: 10px;">Vymazat historii</button>
+            <button id="clearAllBtn">Smazat historii</button>
         </div>
     </div>
     <div id="overlay" class="overlay"></div>
@@ -41,11 +41,10 @@
     <main class="chat-container">
         <div id="welcomeScreen" class="welcome-screen">
             <h1 id="mainTitle">Co dnes vytvoříme?</h1>
-            <p style="opacity: 0.5; font-size: 0.8rem; margin-bottom: 20px;">by Goblinekkk</p>
+            <p class="branding-sub">LUVYX ENGINE BY GOBLINEKKK</p>
             <section class="model-picker">
                 <button class="model-btn active" data-model="llama-3.3-70b-versatile">Llama 3.3</button>
                 <button class="model-btn" data-model="llama-3.1-8b-instant">Instant</button>
-                <button class="model-btn" data-model="mixtral-8x7b-32768">Mixtral</button>
             </section>
         </div>
         <div id="chatWindow" class="chat-window"></div>
@@ -55,7 +54,7 @@
         <div class="input-wrapper">
             <textarea id="userInput" placeholder="Napiš zprávu..." rows="1"></textarea>
             <button id="sendBtn">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
             </button>
         </div>
     </div>
