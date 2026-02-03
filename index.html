@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus AI | Messenger v1.3</title>
+    <title>Nexus AI | v1.4 by Goblinekkk</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
@@ -15,7 +15,7 @@
             <div class="lang-switch">
                 <span id="langCS" class="active">CS</span> / <span id="langEN">EN</span>
             </div>
-            <button id="menuBtn">
+            <button id="menuBtn" class="icon-btn">
                 <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
         </div>
@@ -33,10 +33,12 @@
 
     <main class="chat-container">
         <div id="welcomeScreen" class="welcome-screen">
-            <h1>Co dnes vytvoříme?</h1>
+            <h1 id="mainTitle">Co dnes vytvoříme?</h1>
+            <p style="opacity: 0.5; font-size: 0.8rem; margin-bottom: 20px;">by Goblinekkk</p>
             <section class="model-picker">
                 <button class="model-btn active" data-model="llama-3.3-70b-versatile">Llama 3.3</button>
                 <button class="model-btn" data-model="llama-3.1-8b-instant">Instant</button>
+                <button class="model-btn" data-model="mixtral-8x7b-32768">Mixtral</button>
             </section>
         </div>
 
