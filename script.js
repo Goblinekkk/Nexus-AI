@@ -1,8 +1,15 @@
-let currentModel = "llama-3.3-70b-versatile";
-const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MASTER_KEY = "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"; 
+let currentModel = "llama-3.3-70b-versatile";
+let currentLang = "cs";
+let messages = [];
 
-// Logika přepínání tlačítek
+// Sidebar Toggle
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+document.getElementById('menuBtn').onclick = () => { sidebar.classList.add('open'); overlay.style.display = 'block'; };
+overlay.onclick = () => { sidebar.classList.remove('open'); overlay.style.display = 'none'; };
+
+// Modely
 document.querySelectorAll('.model-btn').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
@@ -11,62 +18,61 @@ document.querySelectorAll('.model-btn').forEach(btn => {
     };
 });
 
-// Odesílání dotazu
-document.getElementById('sendBtn').onclick = async () => {
-    const inputField = document.getElementById('userInput');
-    const input = inputField.value.trim();
-    const responseArea = document.getElementById('responseArea');
+// Odesílání
+async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    // Skrýt úvod při první zprávě
+    document.getElementById('welcomeScreen').style.display = 'none';
     
-    if (!input) return;
-
-    // Příprava UI
-    const startTime = performance.now();
-    responseArea.innerHTML = `<p style="opacity:0.5; font-style: italic;">Nexus AI povolává ${currentModel}...</p>`;
-    inputField.value = ""; // Vyčistit pole
-
+    // UI - Moje zpráva
+    addBubble(text, 'user');
+    input.value = "";
+    
+    const aiBubble = addBubble("...", 'ai');
+    
     try {
-        const res = await fetch(API_URL, {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
-            headers: { 
-                "Authorization": `Bearer ${MASTER_KEY}`, 
-                "Content-Type": "application/json" 
-            },
+            headers: { "Authorization": `Bearer ${MASTER_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-                messages: [{role: "user", content: input}],
-                model: currentModel,
-                temperature: 0.7
+                messages: [{role: "system", content: currentLang === 'cs' ? "Mluv česky." : "Speak English."}, {role: "user", content: text}],
+                model: currentModel
             })
         });
-
         const data = await res.json();
-        const endTime = performance.now();
-        
-        // Výpočet rychlosti
-        const duration = ((endTime - startTime) / 1000).toFixed(2);
-        const text = data.choices[0].message.content;
-        
-        // Vykreslení odpovědi s odstavci
-        responseArea.innerHTML = text.split('\n').filter(p => p.trim() !== "").map(p => `<p>${p}</p>`).join('');
-        
-        // Přidání technických statistik
-        const statsDiv = document.createElement('div');
-        statsDiv.className = 'stats';
-        statsDiv.innerHTML = `
-            <span>Model: <b>${currentModel.split('-')[0].toUpperCase()}</b></span>
-            <span>Speed: <b>${duration}s</b></span>
-            <span>Engine: <b>Groq LPU</b></span>
-        `;
-        responseArea.appendChild(statsDiv);
-        
-    } catch (e) {
-        responseArea.innerHTML = "<p style='color:#ef4444'>Nexus se nemohl spojit s mozkem AI. Zkontroluj API klíč.</p>";
-    }
-};
+        aiBubble.innerText = data.choices[0].message.content;
+        saveChat(text);
+    } catch (e) { aiBubble.innerText = "Chyba spojení."; }
+}
 
-// Odesílání pomocí Enter (bez Shiftu)
-document.getElementById('userInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('sendBtn').click();
+function addBubble(text, type) {
+    const win = document.getElementById('chatWindow');
+    const div = document.createElement('div');
+    div.className = `msg ${type}-msg`;
+    div.innerText = text;
+    win.appendChild(div);
+    win.scrollTop = win.scrollHeight;
+    return div;
+}
+
+function saveChat(title) {
+    let history = JSON.parse(localStorage.getItem('nexus_history') || '[]');
+    if (!history.includes(title)) {
+        history.unshift(title.substring(0, 30));
+        localStorage.setItem('nexus_history', JSON.stringify(history.slice(0, 10)));
+        renderHistory();
     }
-});
+}
+
+function renderHistory() {
+    const list = document.getElementById('chatHistoryList');
+    const history = JSON.parse(localStorage.getItem('nexus_history') || '[]');
+    list.innerHTML = history.map(h => `<div style="padding:10px; border-bottom:1px solid #eee; font-size:0.9rem; cursor:pointer;">${h}</div>`).join('');
+}
+
+document.getElementById('sendBtn').onclick = sendMessage;
+document.getElementById('newChatBtn').onclick = () => location.reload();
+renderHistory();
