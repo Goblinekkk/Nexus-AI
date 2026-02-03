@@ -2,13 +2,11 @@ const MASTER_KEY = "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";
 let currentModel = "llama-3.3-70b-versatile";
 let currentLang = "cs";
 
-// Sidebar & Overlay
 const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 document.getElementById('menuBtn').onclick = () => { sidebar.classList.add('open'); overlay.style.display = 'block'; };
 overlay.onclick = () => { sidebar.classList.remove('open'); overlay.style.display = 'none'; };
 
-// Lang Switch
 document.getElementById('langCS').onclick = () => switchLang('cs');
 document.getElementById('langEN').onclick = () => switchLang('en');
 
@@ -16,11 +14,14 @@ function switchLang(l) {
     currentLang = l;
     document.getElementById('langCS').classList.toggle('active', l === 'cs');
     document.getElementById('langEN').classList.toggle('active', l === 'en');
+    
+    // Překlady
     document.getElementById('mainTitle').innerText = l === 'cs' ? "Co dnes vytvoříme?" : "What shall we create?";
     document.getElementById('userInput').placeholder = l === 'cs' ? "Napiš zprávu..." : "Type a message...";
+    document.getElementById('histTitle').innerText = l === 'cs' ? "Historie" : "History";
+    document.getElementById('newChatBtn').innerText = l === 'cs' ? "+ Nový chat" : "+ New chat";
 }
 
-// Model Picker
 document.querySelectorAll('.model-btn').forEach(btn => {
     btn.onclick = () => {
         document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
@@ -29,7 +30,6 @@ document.querySelectorAll('.model-btn').forEach(btn => {
     };
 });
 
-// Chat Logic
 async function sendMessage() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
@@ -47,7 +47,7 @@ async function sendMessage() {
             headers: { "Authorization": `Bearer ${MASTER_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
                 messages: [
-                    {role: "system", content: currentLang === 'cs' ? "Jsi Nexus AI. Mluv česky, stručně." : "You are Nexus AI. Speak English, concisely."},
+                    {role: "system", content: currentLang === 'cs' ? "Jsi Nexus AI. Mluv česky." : "You are Nexus AI. Speak English."},
                     {role: "user", content: text}
                 ],
                 model: currentModel
@@ -71,7 +71,7 @@ function addBubble(text, type) {
 
 function updateHistory(text) {
     let history = JSON.parse(localStorage.getItem('nexus_hist') || '[]');
-    const title = text.substring(0, 25) + "...";
+    const title = text.substring(0, 20) + "...";
     if (!history.includes(title)) {
         history.unshift(title);
         localStorage.setItem('nexus_hist', JSON.stringify(history.slice(0, 8)));
