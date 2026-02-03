@@ -2,51 +2,55 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI | v1.1 by Goblinekkk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus AI | Messenger v1.3</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <nav>
-        <div class="logo">NEXUS AI</div>
-        <div class="creator">by Goblinekkk</div>
-    </nav>
-
-    <main class="container">
-        <header>
-            <h1>Co dnes vytvoříme?</h1>
-        </header>
-
-        <section class="model-picker">
-            <button class="model-btn active" data-model="llama-3.3-70b-versatile">
-                <span class="dot"></span> Llama 3.3 (Pro)
-            </button>
-            <button class="model-btn" data-model="llama-3.1-8b-instant">
-                <span class="dot"></span> Llama 3.1 (Fast)
-            </button>
-            <button class="model-btn" data-model="mixtral-8x7b-32768">
-                <span class="dot"></span> Mixtral (Deep)
-            </button>
-            <button class="model-btn" data-model="gemma2-9b-it">
-                <span class="dot"></span> Gemma (Creative)
-            </button>
-        </section>
-
-        <div class="input-wrapper">
-            <textarea id="userInput" placeholder="Zeptej se na cokoliv..."></textarea>
-            <button id="sendBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
+        <div class="logo">NEXUS</div>
+        <div class="nav-right">
+            <div class="lang-switch">
+                <span id="langCS" class="active">CS</span> / <span id="langEN">EN</span>
+            </div>
+            <button id="menuBtn">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
         </div>
+    </nav>
 
-        <div id="responseArea" class="response-area">
-            </div>
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h3>Historie</h3>
+            <button id="newChatBtn">+ Nový chat</button>
+        </div>
+        <div id="chatHistoryList"></div>
+        <div class="sidebar-footer">by Goblinekkk</div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <main class="chat-container">
+        <div id="welcomeScreen" class="welcome-screen">
+            <h1>Co dnes vytvoříme?</h1>
+            <section class="model-picker">
+                <button class="model-btn active" data-model="llama-3.3-70b-versatile">Llama 3.3</button>
+                <button class="model-btn" data-model="llama-3.1-8b-instant">Instant</button>
+            </section>
+        </div>
+
+        <div id="chatWindow" class="chat-window"></div>
     </main>
+
+    <div class="input-area">
+        <div class="input-wrapper">
+            <textarea id="userInput" placeholder="Napiš zprávu..." rows="1"></textarea>
+            <button id="sendBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
