@@ -7,33 +7,34 @@ const sidebar = document.getElementById('sidebar');
 const overlay = document.getElementById('overlay');
 const chatContainer = document.querySelector('.chat-container');
 
-// Sidebar logic
-document.getElementById('menuBtn').onclick = () => { sidebar.classList.add('open'); overlay.style.display = 'block'; };
-const closeMenu = () => { sidebar.classList.remove('open'); overlay.style.display = 'none'; };
-overlay.onclick = closeMenu;
-document.getElementById('closeBtn').onclick = closeMenu;
+const toggleMenu = (open) => {
+    sidebar.classList.toggle('open', open);
+    overlay.style.display = open ? 'block' : 'none';
+};
 
-// Lang logic
-document.getElementById('langCS').onclick = () => switchLang('cs');
-document.getElementById('langEN').onclick = () => switchLang('en');
+document.getElementById('menuBtn').onclick = () => toggleMenu(true);
+overlay.onclick = () => toggleMenu(false);
+document.getElementById('closeBtn').onclick = () => toggleMenu(false);
 
 function switchLang(l) {
     currentLang = l;
-    document.getElementById('langCS').classList.toggle('active', l === 'cs');
-    document.getElementById('langEN').classList.toggle('active', l === 'en');
+    document.querySelectorAll('.lang-switch span').forEach(s => s.classList.remove('active'));
+    document.getElementById('lang' + l.toUpperCase()).classList.add('active');
+    
     document.getElementById('mainTitle').innerText = l === 'cs' ? "Co dnes vytvoříme?" : "What shall we create?";
     document.getElementById('userInput').placeholder = l === 'cs' ? "Napiš zprávu..." : "Type a message...";
-    document.getElementById('histTitle').innerText = l === 'cs' ? "Historie" : "History";
+    document.getElementById('histTitle').innerText = l === 'cs' ? "Knihovna" : "Library";
     document.getElementById('newChatBtn').innerText = l === 'cs' ? "+ Nový chat" : "+ New chat";
-    document.getElementById('clearAllBtn').innerText = l === 'cs' ? "Vymazat historii" : "Clear history";
+    document.getElementById('clearAllBtn').innerText = l === 'cs' ? "Smazat historii" : "Clear history";
 }
 
-// Scroll logic
+document.getElementById('langCS').onclick = () => switchLang('cs');
+document.getElementById('langEN').onclick = () => switchLang('en');
+
 function scrollToBottom() {
-    chatContainer.scrollTo({
-        top: chatContainer.scrollHeight,
-        behavior: 'smooth'
-    });
+    setTimeout(() => {
+        chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
+    }, 50);
 }
 
 async function sendMessage() {
@@ -49,9 +50,9 @@ async function sendMessage() {
 
     addBubble(text, 'user');
     inputField.value = "";
-    inputField.style.height = '40px'; // Reset výšky textarey
+    inputField.style.height = 'auto';
     
-    const aiBubble = addBubble(currentLang === 'cs' ? "Nexus přemýšlí..." : "Nexus thinking...", 'ai');
+    const aiBubble = addBubble(currentLang === 'cs' ? "Luvyx přemýšlí..." : "Luvyx thinking...", 'ai');
     scrollToBottom();
 
     try {
@@ -60,7 +61,7 @@ async function sendMessage() {
             headers: { "Authorization": `Bearer ${MASTER_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
                 messages: [
-                    {role: "system", content: currentLang === 'cs' ? "Stručná odpověď v češtině." : "Short answer in English."},
+                    {role: "system", content: currentLang === 'cs' ? "Jsi Luvyx AI. Odpovídej česky a k věci." : "You are Luvyx AI. Be direct."},
                     {role: "user", content: text}
                 ],
                 model: currentModel
@@ -69,7 +70,7 @@ async function sendMessage() {
         const data = await res.json();
         aiBubble.innerText = data.choices[0].message.content;
         scrollToBottom();
-    } catch (e) { aiBubble.innerText = "Chyba spojení."; }
+    } catch (e) { aiBubble.innerText = "Chyba."; }
 }
 
 function addBubble(t, type) {
@@ -81,19 +82,29 @@ function addBubble(t, type) {
     return div;
 }
 
-// ... (zbytek funkcí pro historii a modely zůstává stejný jako ve v1.8)
+function updateHistory(text) {
+    let history = JSON.parse(localStorage.getItem('luvyx_hist') || '[]');
+    const title = text.substring(0, 22) + "...";
+    if(!history.includes(title)) {
+        history.unshift(title);
+        localStorage.setItem('luvyx_hist', JSON.stringify(history.slice(0, 10)));
+        renderHistory();
+    }
+}
+
+function renderHistory() {
+    const list = document.getElementById('chatHistoryList');
+    const history = JSON.parse(localStorage.getItem('luvyx_hist') || '[]');
+    list.innerHTML = history.map(h => `<div style="padding:15px 10px; border-bottom:1px solid #f4f4f5; font-size:0.85rem; color:#888;">${h}</div>`).join('');
+}
+
+document.getElementById('clearAllBtn').onclick = () => {
+    if(confirm("Smazat?")) { localStorage.removeItem('luvyx_hist'); renderHistory(); }
+};
 
 document.getElementById('sendBtn').onclick = sendMessage;
 document.getElementById('newChatBtn').onclick = () => location.reload();
-document.getElementById('userInput').onkeydown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-};
+document.getElementById('userInput').oninput = function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; };
+document.getElementById('userInput').onkeydown = (e) => { if(e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 
-// Automatické zvětšování textarey
-document.getElementById('userInput').oninput = function() {
-    this.style.height = 'auto';
-    this.style.height = (this.scrollHeight) + 'px';
-};
+renderHistory();
